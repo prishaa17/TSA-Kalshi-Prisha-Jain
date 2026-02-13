@@ -45,14 +45,10 @@ tsa-forecasting-baseline/
 
 ```bash
 pip install -r requirements.txt
+### 2. Run the forecasting pipeline
 
-
-
-Run the forecasting pipeline:
-
+```bash
 python src/forecasting.py
-
-
 This will:
 
 Train the model
@@ -64,9 +60,10 @@ Generate forecasts for tsa_test.csv
 Save predictions to outputs/
 
 Outputs
-
 Forecast predictions (CSV)
 
 Validation metrics (MAE, RMSE)
 
 Diagnostic plots (actual vs predicted, residuals, feature importance)
+
+
