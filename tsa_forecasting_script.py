@@ -237,63 +237,38 @@ def evaluate_model(model, data, feature_cols, target_col='Volume', dataset_name=
 
 
 def forecast_test_data(model, train_df, test_df, feature_cols):
-    """
-    Generate forecasts for test data.
-    
-    Parameters:
-    -----------
-    model : RandomForestRegressor
-        Trained model
-    train_df : pd.DataFrame
-        Training data (for lag features)
-    test_df : pd.DataFrame
-        Test data to forecast
-    feature_cols : list
-        Feature column names
-        
-    Returns:
-    --------
-    test_predictions : pd.DataFrame
-        Dataframe with dates and predictions
-    """
-    print("\n" + "="*60)
-    print("STEP 5: Generating Test Forecasts")
-    print("="*60)
-    
-    # Combine train and test for feature creation
-    combined_df = pd.concat([train_df[['Date', 'Volume']], test_df[['Date', 'Volume']]], 
-                            ignore_index=True)
-    combined_df = combined_df.sort_values('Date').reset_index(drop=True)
-    
-    # Create features for combined data
-    combined_features = create_features(combined_df, is_train=False)
-    
-    # Extract test portion
-    test_start_idx = len(train_df)
-    test_features = combined_features.iloc[test_start_idx:].copy()
-    
-    # Handle any remaining NaN values by forward filling
-    test_features[feature_cols] = test_features[feature_cols].ffill()
-    
-    # Generate predictions
-    X_test = test_features[feature_cols]
-    predictions = model.predict(X_test)
-    
-    # Create results dataframe
+
+    history = train_df[['Date', 'Volume']].copy()
+    history = history.sort_values('Date').reset_index(drop=True)
+
+    predictions = []
+
+    for i in range(len(test_df)):
+
+        current_date = test_df.iloc[i]['Date']
+
+        temp_df = history.copy()
+        temp_df = create_features(temp_df)
+
+        latest_row = temp_df.iloc[-1]
+
+        X = latest_row[feature_cols].values.reshape(1, -1)
+
+        pred = model.predict(X)[0]
+        predictions.append(pred)
+
+        history = pd.concat([
+            history,
+            pd.DataFrame({'Date': [current_date], 'Volume': [pred]})
+        ], ignore_index=True)
+
     test_predictions = pd.DataFrame({
-        'Date': test_features['Date'],
+        'Date': test_df['Date'],
         'Predicted_Volume': predictions
     })
-    
-    print(f"\n✓ Generated {len(test_predictions)} forecasts")
-    print(f"  Date range: {test_predictions['Date'].min()} to {test_predictions['Date'].max()}")
-    print(f"\nPrediction Statistics:")
-    print(f"  Mean:   {predictions.mean():,.0f}")
-    print(f"  Median: {np.median(predictions):,.0f}")
-    print(f"  Min:    {predictions.min():,.0f}")
-    print(f"  Max:    {predictions.max():,.0f}")
-    
+
     return test_predictions
+
 
 
 def plot_results(train_data, val_data, train_pred, val_pred, model, feature_cols):
