@@ -127,6 +127,18 @@ The modular design enables straightforward extension into a live inference or tr
 
 ---
 
+## Key Learnings
+
+One of the most important challenges in building this baseline model was avoiding data leakage during forecasting. Because lag and rolling statistics depend on prior observations, it was not sufficient to compute features on the full dataset and then generate predictions for the test set. Doing so would inadvertently use future information.
+
+To address this, I implemented recursive forecasting. Test predictions were generated sequentially, where each predicted value was appended to the historical data before computing features for the next time step. This ensured that all lag and rolling features were constructed only from information that would realistically be available at prediction time.
+
+Another learning was understanding the limitations of tree-based models for time series forecasting. Unlike traditional time series models, tree-based regressors do not inherently understand temporal ordering. As a result, careful feature engineering (such as lag variables and rolling means) is essential to encode temporal structure.
+
+Finally, this project reinforced the importance of maintaining simplicity when building a baseline model. Rather than over-engineering the feature set, focusing on a small number of intuitive temporal features allowed for a clean, interpretable starting point that can be extended in future iterations.
+
+---
+
 ## Conclusion
 
 This project establishes a technically disciplined, leakage-free baseline for TSA passenger volume forecasting with direct applicability to Kalshi-style prediction markets. The model captures dominant weekly autoregressive structure, improves meaningfully over naive baselines, and provides a foundation for probabilistic event forecasting.
