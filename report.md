@@ -101,17 +101,16 @@ These patterns suggest that holiday and event indicators derived purely from cal
 
 ---
 
-## Relevance to Kalshi Markets
+## Practical Extensions
 
-Although trained as a regression model, this framework directly supports event-based prediction markets. Forecasts can be converted into probabilistic outcomes for contracts such as:
+Although this work focuses on a baseline regression model, the framework can be extended in several straightforward directions:
 
-- Volume exceeding a fixed threshold  
-- Week-over-week volume increases  
-- Average weekly volume comparisons  
+- Incorporating holiday indicators to reduce extreme residuals.
+- Adding additional lag features (lag_14, lag_21) to capture multi-week structure.
+- Implementing rolling-origin cross-validation for more robust generalization estimates.
+- Estimating prediction intervals via bootstrapping or quantile regression forests.
 
-Uncertainty can be estimated via bootstrap resampling or quantile regression forests, enabling probability calibration aligned with market pricing rather than point estimation alone.
-
-Directional accuracy improvements over seasonal naive further indicate potential tradable signal even when magnitude errors are non-zero.
+These extensions would enhance robustness while maintaining the simplicity of the baseline architecture.
 
 ---
 
