@@ -1,67 +1,68 @@
-TSA Passenger Volume Forecasting Report
-Introduction
+# TSA Passenger Volume Forecasting Report
+
+## Introduction
 
 This project develops a baseline forecasting model to predict daily TSA passenger volumes. The objective was to implement a technically sound, interpretable model that captures core temporal dynamics without unnecessary architectural complexity. The resulting model — a Random Forest Regressor trained on seven engineered temporal features — achieved a validation Mean Absolute Error (MAE) of 95,663 passengers (3.67% MAPE), representing approximately a 70% improvement over a naive persistence baseline.
 
 This report details the modeling framework, feature engineering strategy, validation methodology, leakage mitigation approach, and performance evaluation, followed by key technical insights and potential extensions.
 
-Methodology
+## Methodology
 
 A Random Forest Regressor was selected as the baseline model due to its ability to capture nonlinear relationships without requiring explicit feature transformations. Tree-based ensemble methods naturally model interaction effects and non-monotonic dependencies between temporal predictors and passenger volume, while remaining robust to feature scaling and monotonic transformations.
 
 The final model consists of:
 
-n_estimators = 100
+- n_estimators = 100
 
-max_depth = 15
+- max_depth = 15
 
-Regularization via min_samples_split and min_samples_leaf
+- Regularization via min_samples_split and min_samples_leaf
 
-Increasing max_depth beyond 15 reduced training error but increased validation error, indicating overfitting. A depth of 15 provided an appropriate bias–variance tradeoff.
+- Increasing max_depth beyond 15 reduced training error but increased validation error, indicating overfitting. A depth of 15 provided an appropriate bias–variance tradeoff.
 
-Feature Engineering Strategy
+## Feature Engineering Strategy
 
 Seven features were constructed across three categories:
 
 1. Calendar-Based Temporal Features
 
-day_of_week (0–6)
+  day_of_week (0–6)
 
-month (1–12)
+  month (1–12)
 
-year
+  year
 
-is_weekend (binary)
+  is_weekend (binary)
 
 These encode periodic and seasonal structure directly from the date index.
 
 2. Lag Features
 
-lag_1: Volume at time 
-𝑡
-−
-1
-t−1
+  lag_1: Volume at time 
+  𝑡
+  −
+  1
+  t−1
 
-lag_7: Volume at time 
-𝑡
-−
-7
-t−7
+  lag_7: Volume at time 
+  𝑡
+  −
+  7
+  t−7
 
 These capture short-term persistence and weekly seasonality.
 
 3. Rolling Aggregation
 
-rolling_mean_7: Mean of volumes from 
-𝑡
-−
-7
-t−7 through 
-𝑡
-−
-1
-t−1
+  rolling_mean_7: Mean of volumes from 
+  𝑡
+  −
+  7
+  t−7 through 
+  𝑡
+  −
+  1
+  t−1
 
 To prevent target leakage:
 
@@ -70,7 +71,7 @@ df['rolling_mean_7'] = df['Volume'].shift(1).rolling(window=7).mean()
 
 The shift ensures strict temporal causality by excluding the current observation from the rolling window.
 
-Train–Validation Strategy
+## Train–Validation Strategy
 
 A chronological split was used:
 
@@ -82,7 +83,7 @@ Random splitting was avoided because it violates temporal ordering and introduce
 
 Feature engineering was performed prior to splitting to preserve temporal continuity across the boundary.
 
-Data Leakage Mitigation
+## Data Leakage Mitigation
 
 Safeguards implemented:
 
@@ -102,7 +103,7 @@ t depends exclusively on information available at time
 1
 t−1 or earlier.
 
-Model Performance
+## Model Performance
 Training Performance
 
 MAE: 51,471
@@ -159,11 +160,11 @@ Increasing model complexity without additional signal introduces overfitting.
 
 Residual analysis shows heavy-tailed errors concentrated around holidays, suggesting value in calendar-based holiday indicators.
 
-Conclusion
+## Conclusion
 
 This project demonstrates that a carefully engineered Random Forest baseline can capture dominant temporal structure in TSA passenger volumes using a compact feature set. The model achieves 3.67% validation MAPE while maintaining interpretability and strict temporal causality.
 
-Potential Extensions
+## Potential Extensions
 
 Holiday and event indicators derived from calendar metadata
 
@@ -173,7 +174,7 @@ Additional seasonal lags (14, 21, 28 days)
 
 Hybrid or ensemble modeling approaches
 
-Technical Summary
+## Technical Summary
 
 Model: Random Forest Regressor (scikit-learn)
 Features: 7 (temporal + lag + rolling)
